@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -34,6 +36,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string")
      */
     private $password;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $username;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * @ORM\OneToMany(targetEntity=CourseCategory::class, mappedBy="userOwner")
+     */
+    private $listOwned;
+
+    public function __construct()
+    {
+        $this->listOwned = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -67,7 +89,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->email;
+        return (string) $this->username;
     }
 
     /**
@@ -122,5 +144,54 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function setUsername(string $username): self
+    {
+        $this->username = $username;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CourseCategory[]
+     */
+    public function getListOwned(): Collection
+    {
+        return $this->listOwned;
+    }
+
+    public function addListOwned(CourseCategory $listOwned): self
+    {
+        if (!$this->listOwned->contains($listOwned)) {
+            $this->listOwned[] = $listOwned;
+            $listOwned->setUserOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeListOwned(CourseCategory $listOwned): self
+    {
+        if ($this->listOwned->removeElement($listOwned)) {
+            // set the owning side to null (unless already changed)
+            if ($listOwned->getUserOwner() === $this) {
+                $listOwned->setUserOwner(null);
+            }
+        }
+
+        return $this;
     }
 }
