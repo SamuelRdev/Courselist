@@ -38,9 +38,21 @@ class SecurityController extends AbstractController
 
         }
 
-
         return $this->render('security/inscription.html.twig', [
             'form' => $form->createView()
         ]);
+    }
+
+    #[Route('/connexion', name: 'security_login')]
+    public function login()
+    {
+        return $this->render('security/connexion.html.twig');
+    }
+
+    #[Route('/deconnexion', name: 'security_logout')]
+    public function logout()
+    {
+        $this->addFlash('message', 'Votre compte a été correctement déconnecté.');
+        return $this->redirectToRoute('accueil');
     }
 }
