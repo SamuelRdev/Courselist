@@ -8,6 +8,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -51,6 +53,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\OneToMany(targetEntity=CourseCategory::class, mappedBy="userOwner")
      */
     private $listOwned;
+
+    /**
+     * @Assert\EqualTo(propertyPath = "password", message = "Les mots de passe saisis sont différents")
+     */
+    private $confirm_password;
 
     public function __construct()
     {
@@ -122,6 +129,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): self
     {
         $this->password = $password;
+
+        return $this;
+    }
+    
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getConfirmPassword(): string
+    {
+        return $this->confirm_password;
+    }
+
+    public function setConfirmPassword(string $confirm_password): self
+    {
+        $this->confirm_password = $confirm_password;
 
         return $this;
     }
